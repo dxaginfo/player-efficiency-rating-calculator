@@ -1,32 +1,34 @@
 # Player Efficiency Rating (PER) Calculator
 
-An interactive web application for calculating, analyzing, and visualizing NBA players' efficiency ratings using the PER formula.
+An interactive web application for calculating, visualizing, and analyzing basketball player performance using the Player Efficiency Rating (PER) metric.
 
 ## Overview
 
-The Player Efficiency Rating (PER) Calculator is a tool designed to help basketball analysts, coaches, and enthusiasts evaluate player performance through John Hollinger's comprehensive PER metric. This formula captures a player's all-around contributions, including positive actions (scoring, rebounds, assists, steals, blocks) and negative ones (missed shots, turnovers, fouls).
+The Player Efficiency Rating Calculator is designed for basketball analysts, coaches, and fans who want to evaluate player performance using John Hollinger's comprehensive PER metric. This tool provides insights into a player's overall contribution on the court, breaking down efficiency into key components and allowing for player comparisons.
+
+![PER Calculator Screenshot](https://via.placeholder.com/800x450.png?text=PER+Calculator+Screenshot)
 
 ## Features
 
-- 🧮 **PER Calculator**: Input player stats to calculate their efficiency rating
-- 📊 **Data Visualization**: View PER components in interactive charts
-- 🔄 **Player Comparison**: Compare multiple players side-by-side
-- 📏 **Benchmark Analysis**: See how a player stacks up against league averages
-- ⚙️ **Customizable Weights**: Adjust formula parameters for custom analysis
+- **Complete PER Calculation Engine**: Accurate implementation of the Player Efficiency Rating formula
+- **Interactive Input Form**: User-friendly interface for entering player statistics with validation
+- **Visual Results Display**: Clear visualization of PER score with rating interpretation
+- **Component Breakdown**: Analysis of how different aspects of play contribute to the overall rating
+- **Player Comparison Tool**: Compare performance against other players
+- **Educational Context**: Learn about what PER means and how it's calculated
 
-## Tech Stack
+## Technologies Used
 
-- **Frontend**: React with TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: React Context API
-- **Visualization**: Recharts
-- **Deployment**: Vercel/Netlify
+- **React**: Frontend framework with TypeScript for type safety
+- **Context API**: State management
+- **Tailwind CSS**: Responsive styling
+- **Chart Components**: Data visualization
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v16+)
+- Node.js (v14 or higher)
 - npm or yarn
 
 ### Installation
@@ -34,86 +36,79 @@ The Player Efficiency Rating (PER) Calculator is a tool designed to help basketb
 1. Clone the repository:
    ```
    git clone https://github.com/dxaginfo/player-efficiency-rating-calculator.git
+   ```
+
+2. Navigate to the project directory:
+   ```
    cd player-efficiency-rating-calculator
    ```
 
-2. Install dependencies:
+3. Install dependencies:
    ```
    npm install
-   # or
+   ```
+   or
+   ```
    yarn install
    ```
 
-3. Start the development server:
+4. Start the development server:
    ```
    npm start
-   # or
+   ```
+   or
+   ```
    yarn start
    ```
 
-4. Open your browser and navigate to `http://localhost:3000`
+5. Open your browser and navigate to `http://localhost:3000`
+
+## How to Use
+
+1. **Enter Player Stats**: Fill in the player statistics form with the required data
+2. **Calculate PER**: Click the "Calculate PER" button to generate results
+3. **View Results**: See the calculated PER value, rating category, and visual breakdown
+4. **Compare Players**: Use the comparison tool to add and compare different players
+
+## Understanding PER
+
+Player Efficiency Rating (PER) is a per-minute rating developed by NBA analyst John Hollinger. It's designed to sum up all a player's positive accomplishments, subtract the negative accomplishments, and return a per-minute rating of a player's performance.
+
+### PER Ratings Scale:
+
+- **30+ PER**: All-time great season
+- **25-30 PER**: MVP candidate
+- **20-25 PER**: All-Star caliber
+- **15-20 PER**: Solid starter
+- **13-15 PER**: Rotation player
+- **<13 PER**: Bench player
+
+The league average PER is set to 15.00 every season.
 
 ## Project Structure
 
 ```
-/src
-  /components
-    /CalculatorForm      # Input form for player statistics
-    /ResultsDisplay      # PER results visualization
-    /ComparisonTool      # Player comparison interface
-    /Visualizations      # Chart components
-  /utils
-    perCalculations.ts   # PER formula implementation
-    dataValidation.ts    # Input validation utilities
-    chartHelpers.ts      # Chart configuration helpers
-  /context
-    CalculatorContext.tsx # Application state management
-  /hooks
-    usePerCalculation.ts  # Custom hook for PER calculations
-  /types
-    index.ts             # TypeScript type definitions
-  App.tsx                # Main application component
-  index.tsx              # Application entry point
+src/
+├── components/           # React components
+│   ├── CalculatorForm/   # Form for inputting player statistics
+│   ├── ResultsDisplay/   # Display of calculation results
+│   └── ComparisonTool/   # Player comparison functionality
+├── context/              # React Context for state management
+├── types/                # TypeScript type definitions
+├── utils/                # Utility functions
+│   └── perCalculations.ts  # Core PER calculation logic
+├── App.tsx               # Main application component
+└── index.tsx             # Application entry point
 ```
-
-## Understanding PER
-
-### The Formula
-
-Player Efficiency Rating is calculated using the formula:
-
-```
-uPER = (1/MP) * [3P + 2*2P + (2/3)*FT - 0.8*FTA - 0.4*(FGA-FGM) - 0.4*(3PA-3PM) - TO + 0.7*ORB + 0.3*DRB + STL + 0.7*AST + 0.7*BLK - 0.4*PF]
-```
-
-This is then normalized to ensure the league average is 15:
-
-```
-PER = [uPER * (league pace adjustment)] * (15 / league average uPER)
-```
-
-### Interpreting PER
-
-| PER Range | Rating        |
-|-----------|---------------|
-| >30       | All-time great|
-| 25-30     | MVP candidate |
-| 20-25     | All-Star      |
-| 15-20     | Starter       |
-| 13-15     | Rotation      |
-| <13       | Bench         |
 
 ## Future Enhancements
 
-- Integration with basketball stats APIs
-- Team analysis tools
-- Historical data comparisons
-- Projection capabilities
+- Advanced formula customization
+- NBA API integration for real-time stats
+- Historical player database
+- Team-level PER analysis
+- Data export functionality
 - Mobile app version
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
@@ -122,4 +117,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Acknowledgments
 
 - John Hollinger for developing the PER metric
-- Basketball statisticians and analysts who continue to evolve the field
+- Basketball statisticians and analysts who continue to evolve performance metrics
