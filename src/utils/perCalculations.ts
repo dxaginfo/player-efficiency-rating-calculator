@@ -1,233 +1,233 @@
-import { 
-  PlayerStats, 
-  PerResult, 
-  PerComponents, 
-  PerRating, 
-  LeagueAverages, 
-  PerWeights 
-} from '../types';
-
-// Default league averages for the 2024-2025 NBA season
-// These values would ideally come from a real API or database
-export const DEFAULT_LEAGUE_AVERAGES: LeagueAverages = {
-  pace: 98.1, // League average pace
-  averageUnadjustedPer: 15.0, // By definition
-};
-
-// Default weights for the PER formula
-export const DEFAULT_PER_WEIGHTS: PerWeights = {
-  fieldGoalWeight: 2.0,
-  threePointerWeight: 3.0,
-  freeThrowWeight: 0.67,
-  offensiveReboundWeight: 0.7,
-  defensiveReboundWeight: 0.3,
-  assistWeight: 0.7,
-  stealWeight: 1.0,
-  blockWeight: 0.7,
-  turnoverWeight: -1.0,
-  missedFieldGoalWeight: -0.4,
-  missedFreeThrowWeight: -0.8,
-  personalFoulWeight: -0.4,
-};
-
 /**
- * Calculates the Player Efficiency Rating (PER) based on provided stats
- * 
- * @param stats - The player's statistics
- * @param leagueAverages - League-wide statistics for normalization
- * @param weights - Optional custom weights for the PER formula
- * @returns A PerResult object containing the calculated PER and components
+ * Player Efficiency Rating (PER) calculation utilities
  */
-export function calculatePER(
-  stats: PlayerStats, 
-  leagueAverages: LeagueAverages = DEFAULT_LEAGUE_AVERAGES,
-  weights: PerWeights = DEFAULT_PER_WEIGHTS
-): PerResult {
-  // Calculate minutes per game
-  const minutesPerGame = stats.minutesPlayed / stats.gamesPlayed;
-  
-  if (minutesPerGame === 0) {
-    throw new Error("Minutes played must be greater than zero");
-  }
 
-  // Calculate the raw components for the unadjusted PER
-  const twoPointersMade = stats.fieldGoalsMade - stats.threePointersMade;
-  const twoPointersAttempted = stats.fieldGoalsAttempted - stats.threePointersAttempted;
+interface PlayerStats {
+  // Game statistics
+  minutes: number;           // Minutes played
+  fieldGoalsMade: number;    // Field goals made
+  fieldGoalsAttempted: number; // Field goals attempted
+  threesMade: number;       // Three-pointers made
+  threesAttempted: number;  // Three-pointers attempted
+  freeThrowsMade: number;   // Free throws made
+  freeThrowsAttempted: number; // Free throws attempted
+  offensiveRebounds: number; // Offensive rebounds
+  defensiveRebounds: number; // Defensive rebounds
+  assists: number;          // Assists
+  steals: number;           // Steals
+  blocks: number;           // Blocks
+  turnovers: number;        // Turnovers
+  personalFouls: number;    // Personal fouls
+  points: number;           // Total points (for validation)
   
-  // Calculate positive contributions
-  const scoringValue = 
-    weights.threePointerWeight * stats.threePointersMade +
-    weights.fieldGoalWeight * twoPointersMade +
-    weights.freeThrowWeight * stats.freeThrowsMade;
-  
-  const reboundingValue = 
-    weights.offensiveReboundWeight * stats.offensiveRebounds +
-    weights.defensiveReboundWeight * stats.defensiveRebounds;
-  
-  const assistValue = weights.assistWeight * stats.assists;
-  
-  const defensiveValue = 
-    weights.stealWeight * stats.steals +
-    weights.blockWeight * stats.blocks;
-  
-  // Calculate negative contributions
-  const missedShotsValue = 
-    weights.missedFieldGoalWeight * (stats.fieldGoalsAttempted - stats.fieldGoalsMade) +
-    weights.missedFreeThrowWeight * (stats.freeThrowsAttempted - stats.freeThrowsMade);
-  
-  const turnoverValue = weights.turnoverWeight * stats.turnovers;
-  
-  const foulValue = weights.personalFoulWeight * stats.personalFouls;
-  
-  const negativeValue = missedShotsValue + turnoverValue + foulValue;
-  
-  // Calculate unadjusted PER (per minute)
-  const perPerMinute = (scoringValue + reboundingValue + assistValue + defensiveValue + negativeValue) / stats.minutesPlayed;
-  
-  // Scale to per-36-minutes basis (traditional PER is presented this way)
-  const rawPer = perPerMinute * 36;
-  
-  // Apply league adjustments
-  const paceAdjustment = leagueAverages.pace / 100;
-  const leagueAdjustment = 15 / leagueAverages.averageUnadjustedPer;
-  
-  const adjustedPer = rawPer * paceAdjustment * leagueAdjustment;
-  
-  // Create component breakdown for visualization
-  const components: PerComponents = {
-    scoringContribution: scoringValue / stats.minutesPlayed * 36,
-    reboundingContribution: reboundingValue / stats.minutesPlayed * 36,
-    assistContribution: assistValue / stats.minutesPlayed * 36,
-    defensiveContribution: defensiveValue / stats.minutesPlayed * 36,
-    negativeContribution: negativeValue / stats.minutesPlayed * 36,
-  };
-  
-  return {
-    playerId: stats.playerId,
-    playerName: stats.playerName,
-    rawPer,
-    adjustedPer,
-    components,
-    rating: getRatingFromPER(adjustedPer),
-  };
+  // League context (optional, defaults provided)
+  leagueAveragePace?: number;  // League average pace factor
+  leagueAverageUPER?: number;  // League average unadjusted PER
 }
 
 /**
- * Determines the qualitative rating based on the PER value
+ * Calculate the unadjusted Player Efficiency Rating (uPER) based on raw statistics
  * 
- * @param per - The calculated Player Efficiency Rating
- * @returns A string rating category
+ * @param stats Player statistics
+ * @returns Unadjusted PER value
  */
-export function getRatingFromPER(per: number): PerRating {
-  if (per >= 30) return 'All-time great';
+export const calculateUnadjustedPER = (stats: PlayerStats): number => {
+  const {
+    minutes,
+    fieldGoalsMade,
+    fieldGoalsAttempted,
+    threesMade,
+    threesAttempted,
+    freeThrowsMade,
+    freeThrowsAttempted,
+    offensiveRebounds,
+    defensiveRebounds,
+    assists,
+    steals,
+    blocks,
+    turnovers,
+    personalFouls
+  } = stats;
+  
+  // Calculate two-pointers (non-three-point field goals)
+  const twoPointsMade = fieldGoalsMade - threesMade;
+  
+  // Check if minutes played is valid to avoid division by zero
+  if (minutes <= 0) {
+    throw new Error('Minutes played must be greater than zero');
+  }
+  
+  // Calculate unadjusted PER (uPER) using Hollinger's formula
+  const uPER = (1 / minutes) * (
+    // Positive contributions
+    (threesMade * 3) +             // Three-pointers (3 points each)
+    (twoPointsMade * 2) +          // Two-pointers (2 points each)
+    (freeThrowsMade * (2/3)) +     // Free throws (weighted)
+    (offensiveRebounds * 0.7) +    // Offensive rebounds (weighted)
+    (defensiveRebounds * 0.3) +    // Defensive rebounds (weighted)
+    steals +                       // Steals
+    (assists * 0.7) +              // Assists (weighted)
+    (blocks * 0.7) -               // Blocks (weighted)
+    
+    // Negative contributions
+    (freeThrowsAttempted * 0.8) -              // Free throw attempts (missed opportunities)
+    (fieldGoalsAttempted - fieldGoalsMade) * 0.4 -  // Missed field goals
+    (threesAttempted - threesMade) * 0.4 -     // Missed three-pointers
+    turnovers -                               // Turnovers
+    (personalFouls * 0.4)                     // Personal fouls
+  );
+  
+  return uPER;
+};
+
+/**
+ * Calculate the adjusted Player Efficiency Rating (PER)
+ * normalized to league average of 15
+ * 
+ * @param uPER Unadjusted PER value
+ * @param leagueAveragePace League average pace factor (default: 1.0)
+ * @param leagueAverageUPER League average unadjusted PER (default: 15.0)
+ * @returns Adjusted PER value
+ */
+export const calculateAdjustedPER = (
+  uPER: number,
+  leagueAveragePace: number = 1.0,
+  leagueAverageUPER: number = 15.0
+): number => {
+  // Adjust for pace factor and normalize to league average of 15
+  const adjustmentFactor = (15 / leagueAverageUPER) * leagueAveragePace;
+  return uPER * adjustmentFactor;
+};
+
+/**
+ * Get PER rating category based on the calculated PER value
+ * 
+ * @param per Player Efficiency Rating value
+ * @returns Rating category description
+ */
+export const getPERCategory = (per: number): string => {
+  if (per >= 30) return 'All-time great season';
   if (per >= 25) return 'MVP candidate';
-  if (per >= 20) return 'All-Star';
-  if (per >= 15) return 'Starter';
+  if (per >= 20) return 'All-Star caliber';
+  if (per >= 15) return 'Solid starter';
   if (per >= 13) return 'Rotation player';
   return 'Bench player';
-}
+};
 
 /**
- * Generates sample player data for demo purposes
+ * Validate player statistics for internal consistency
  * 
- * @returns A PlayerStats object with sample data
+ * @param stats Player statistics to validate
+ * @returns Object with validation result and error message
  */
-export function generateSamplePlayerStats(): PlayerStats {
-  return {
-    playerName: "LeBron James",
-    team: "Los Angeles Lakers",
-    position: "SF",
-    season: "2024-2025",
-    gamesPlayed: 65,
-    minutesPlayed: 2132,
-    fieldGoalsMade: 621,
-    fieldGoalsAttempted: 1208,
-    threePointersMade: 132,
-    threePointersAttempted: 369,
-    freeThrowsMade: 325,
-    freeThrowsAttempted: 418,
-    offensiveRebounds: 58,
-    defensiveRebounds: 467,
-    assists: 559,
-    steals: 87,
-    blocks: 53,
-    turnovers: 219,
-    personalFouls: 112,
-  };
-}
+export const validatePlayerStats = (stats: PlayerStats): { valid: boolean; error?: string } => {
+  const {
+    minutes,
+    fieldGoalsMade,
+    fieldGoalsAttempted,
+    threesMade,
+    threesAttempted,
+    freeThrowsMade,
+    freeThrowsAttempted,
+    points
+  } = stats;
+  
+  // Check for negative values
+  const allStats = Object.entries(stats);
+  for (const [key, value] of allStats) {
+    if (typeof value === 'number' && value < 0) {
+      return { valid: false, error: `${key} cannot be negative` };
+    }
+  }
+  
+  // Check for logical constraints
+  if (minutes <= 0) {
+    return { valid: false, error: 'Minutes played must be greater than zero' };
+  }
+  
+  if (fieldGoalsMade > fieldGoalsAttempted) {
+    return { valid: false, error: 'Field goals made cannot exceed attempted' };
+  }
+  
+  if (threesMade > threesAttempted) {
+    return { valid: false, error: 'Three-pointers made cannot exceed attempted' };
+  }
+  
+  if (threesMade > fieldGoalsMade) {
+    return { valid: false, error: 'Three-pointers made cannot exceed total field goals made' };
+  }
+  
+  if (freeThrowsMade > freeThrowsAttempted) {
+    return { valid: false, error: 'Free throws made cannot exceed attempted' };
+  }
+  
+  // Verify points total if provided
+  const calculatedPoints = (fieldGoalsMade - threesMade) * 2 + threesMade * 3 + freeThrowsMade;
+  if (points && calculatedPoints !== points) {
+    return { 
+      valid: false, 
+      error: `Points total (${points}) doesn't match calculated value (${calculatedPoints})` 
+    };
+  }
+  
+  return { valid: true };
+};
 
 /**
- * Generates sample comparison players for demo purposes
+ * Calculate full PER with validation
  * 
- * @returns An array of PlayerStats objects with sample data
+ * @param stats Player statistics
+ * @returns Object with PER value, category, and component breakdown
  */
-export function generateComparisonPlayers(): PlayerStats[] {
-  return [
-    {
-      playerId: "1",
-      playerName: "Nikola Jokić",
-      team: "Denver Nuggets",
-      position: "C",
-      season: "2024-2025",
-      gamesPlayed: 72,
-      minutesPlayed: 2462,
-      fieldGoalsMade: 689,
-      fieldGoalsAttempted: 1195,
-      threePointersMade: 87,
-      threePointersAttempted: 238,
-      freeThrowsMade: 421,
-      freeThrowsAttempted: 482,
-      offensiveRebounds: 195,
-      defensiveRebounds: 672,
-      assists: 624,
-      steals: 101,
-      blocks: 62,
-      turnovers: 247,
-      personalFouls: 193,
-    },
-    {
-      playerId: "2",
-      playerName: "Stephen Curry",
-      team: "Golden State Warriors",
-      position: "PG",
-      season: "2024-2025",
-      gamesPlayed: 68,
-      minutesPlayed: 2185,
-      fieldGoalsMade: 562,
-      fieldGoalsAttempted: 1185,
-      threePointersMade: 317,
-      threePointersAttempted: 724,
-      freeThrowsMade: 286,
-      freeThrowsAttempted: 308,
-      offensiveRebounds: 42,
-      defensiveRebounds: 306,
-      assists: 392,
-      steals: 95,
-      blocks: 18,
-      turnovers: 178,
-      personalFouls: 142,
-    },
-    {
-      playerId: "3",
-      playerName: "Giannis Antetokounmpo",
-      team: "Milwaukee Bucks",
-      position: "PF",
-      season: "2024-2025",
-      gamesPlayed: 70,
-      minutesPlayed: 2310,
-      fieldGoalsMade: 721,
-      fieldGoalsAttempted: 1215,
-      threePointersMade: 32,
-      threePointersAttempted: 118,
-      freeThrowsMade: 487,
-      freeThrowsAttempted: 731,
-      offensiveRebounds: 158,
-      defensiveRebounds: 632,
-      assists: 385,
-      steals: 89,
-      blocks: 93,
-      turnovers: 227,
-      personalFouls: 203,
-    },
-  ];
-}
+export const calculatePER = (stats: PlayerStats): {
+  valid: boolean;
+  error?: string;
+  per?: number;
+  category?: string;
+  components?: Record<string, number>;
+} => {
+  // Validate stats first
+  const validation = validatePlayerStats(stats);
+  if (!validation.valid) {
+    return validation;
+  }
+  
+  try {
+    // Calculate unadjusted PER
+    const uPER = calculateUnadjustedPER(stats);
+    
+    // Calculate adjusted PER
+    const per = calculateAdjustedPER(
+      uPER, 
+      stats.leagueAveragePace, 
+      stats.leagueAverageUPER
+    );
+    
+    // Get rating category
+    const category = getPERCategory(per);
+    
+    // Calculate component breakdown for visualization
+    const components = {
+      scoring: ((stats.fieldGoalsMade - stats.threesMade) * 2 + stats.threesMade * 3 + stats.freeThrowsMade * (2/3)) / stats.minutes,
+      rebounding: (stats.offensiveRebounds * 0.7 + stats.defensiveRebounds * 0.3) / stats.minutes,
+      playmaking: (stats.assists * 0.7) / stats.minutes,
+      defense: (stats.steals + stats.blocks * 0.7) / stats.minutes,
+      negatives: -(stats.freeThrowsAttempted * 0.8 - stats.freeThrowsMade * (2/3) + 
+                  (stats.fieldGoalsAttempted - stats.fieldGoalsMade) * 0.4 + 
+                  stats.turnovers + 
+                  stats.personalFouls * 0.4) / stats.minutes
+    };
+    
+    return {
+      valid: true,
+      per,
+      category,
+      components
+    };
+  } catch (error) {
+    return { 
+      valid: false, 
+      error: error instanceof Error ? error.message : 'Unknown error calculating PER' 
+    };
+  }
+};

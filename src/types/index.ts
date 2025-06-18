@@ -1,110 +1,55 @@
-// Type definitions for the PER Calculator application
+/**
+ * TypeScript type definitions for the application
+ */
 
-// Player statistics input interface
+// Player statistics for PER calculation
 export interface PlayerStats {
-  // Player identification
-  playerId?: string;
+  // Basic information
   playerName: string;
   team?: string;
-  position?: string;
   season?: string;
   
   // Game statistics
-  gamesPlayed: number;
-  minutesPlayed: number;
+  minutes: number;           // Minutes played
+  fieldGoalsMade: number;    // Field goals made
+  fieldGoalsAttempted: number; // Field goals attempted
+  threesMade: number;       // Three-pointers made
+  threesAttempted: number;  // Three-pointers attempted
+  freeThrowsMade: number;   // Free throws made
+  freeThrowsAttempted: number; // Free throws attempted
+  offensiveRebounds: number; // Offensive rebounds
+  defensiveRebounds: number; // Defensive rebounds
+  assists: number;          // Assists
+  steals: number;           // Steals
+  blocks: number;           // Blocks
+  turnovers: number;        // Turnovers
+  personalFouls: number;    // Personal fouls
+  points: number;           // Total points (optional, for validation)
   
-  // Scoring
-  fieldGoalsMade: number;
-  fieldGoalsAttempted: number;
-  threePointersMade: number;
-  threePointersAttempted: number;
-  freeThrowsMade: number;
-  freeThrowsAttempted: number;
-  
-  // Rebounding
-  offensiveRebounds: number;
-  defensiveRebounds: number;
-  
-  // Other stats
-  assists: number;
-  steals: number;
-  blocks: number;
-  turnovers: number;
-  personalFouls: number;
+  // League context (optional, defaults provided)
+  leagueAveragePace?: number;  // League average pace factor
+  leagueAverageUPER?: number;  // League average unadjusted PER
 }
 
-// Interface for PER calculation results
-export interface PerResult {
-  playerId?: string;
-  playerName: string;
-  rawPer: number;
-  adjustedPer: number;
-  components: PerComponents;
-  rating: PerRating;
+// PER calculation result
+export interface PERResult {
+  valid: boolean;
+  error?: string;
+  per?: number;
+  category?: string;
+  components?: PERComponents;
 }
 
-// Breakdown of PER components for visualization
-export interface PerComponents {
-  scoringContribution: number;
-  reboundingContribution: number;
-  assistContribution: number;
-  defensiveContribution: number;
-  negativeContribution: number;
+// PER component breakdown
+export interface PERComponents {
+  scoring: number;
+  rebounding: number;
+  playmaking: number;
+  defense: number;
+  negatives: number;
 }
 
-// Categorical rating based on PER value
-export type PerRating = 
-  | 'All-time great' 
-  | 'MVP candidate' 
-  | 'All-Star' 
-  | 'Starter' 
-  | 'Rotation player'
-  | 'Bench player';
-
-// League averages for PER normalization
-export interface LeagueAverages {
-  pace: number;
-  averageUnadjustedPer: number;
-  // Could include more league-wide stats for advanced calculations
+// Player profile with PER result
+export interface PlayerProfile extends PlayerStats {
+  perResult: PERResult;
 }
-
-// Custom PER formula weights for advanced users
-export interface PerWeights {
-  fieldGoalWeight: number;
-  threePointerWeight: number;
-  freeThrowWeight: number;
-  offensiveReboundWeight: number;
-  defensiveReboundWeight: number;
-  assistWeight: number;
-  stealWeight: number;
-  blockWeight: number;
-  turnoverWeight: number;
-  missedFieldGoalWeight: number;
-  missedFreeThrowWeight: number;
-  personalFoulWeight: number;
-}
-
-// Interface for the calculator context
-export interface CalculatorContextState {
-  playerStats: PlayerStats | null;
-  perResult: PerResult | null;
-  comparisonPlayers: PerResult[];
-  leagueAverages: LeagueAverages;
-  customWeights: PerWeights;
-  isUsingCustomWeights: boolean;
-  isCalculating: boolean;
-  error: string | null;
-}
-
-// Actions for the calculator context reducer
-export type CalculatorAction =
-  | { type: 'SET_PLAYER_STATS'; payload: PlayerStats }
-  | { type: 'SET_PER_RESULT'; payload: PerResult }
-  | { type: 'ADD_COMPARISON_PLAYER'; payload: PerResult }
-  | { type: 'REMOVE_COMPARISON_PLAYER'; payload: string }  // playerId
-  | { type: 'SET_LEAGUE_AVERAGES'; payload: LeagueAverages }
-  | { type: 'SET_CUSTOM_WEIGHTS'; payload: PerWeights }
-  | { type: 'TOGGLE_CUSTOM_WEIGHTS'; payload: boolean }
-  | { type: 'SET_CALCULATING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'RESET_CALCULATOR' };

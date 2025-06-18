@@ -1,122 +1,143 @@
 import React, { useState } from 'react';
-import { CalculatorProvider } from './context/CalculatorContext';
-import CalculatorForm from './components/CalculatorForm';
-import ResultsDisplay from './components/ResultsDisplay';
-import ComparisonTool from './components/ComparisonTool';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'calculator' | 'advanced'>('calculator');
+  const [activeTab, setActiveTab] = useState<'calculator' | 'compare' | 'about'>('calculator');
 
   return (
-    <CalculatorProvider>
-      <div className="min-h-screen bg-gray-100">
-        <header className="bg-blue-700 text-white py-6 shadow-md">
-          <div className="container mx-auto px-4">
-            <h1 className="text-3xl font-bold text-center">Player Efficiency Rating Calculator</h1>
-            <p className="text-center text-blue-100 mt-2">
-              Analyze basketball player performance with the PER metric
-            </p>
-          </div>
-        </header>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-blue-600 text-white shadow-lg">
+        <div className="container mx-auto px-4 py-6">
+          <h1 className="text-3xl font-bold">Player Efficiency Rating Calculator</h1>
+          <p className="text-blue-100 mt-2">
+            Analyze basketball player performance with the comprehensive PER metric
+          </p>
+        </div>
+      </header>
 
-        <main className="container mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-            <div className="flex border-b">
-              <button
-                className={`py-4 px-6 font-medium text-sm focus:outline-none ${
-                  activeTab === 'calculator'
-                    ? 'text-blue-700 border-b-2 border-blue-700 bg-blue-50'
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                }`}
-                onClick={() => setActiveTab('calculator')}
-              >
-                PER Calculator
-              </button>
-              <button
-                className={`py-4 px-6 font-medium text-sm focus:outline-none ${
-                  activeTab === 'advanced'
-                    ? 'text-blue-700 border-b-2 border-blue-700 bg-blue-50'
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-                }`}
-                onClick={() => setActiveTab('advanced')}
-              >
-                Advanced Options
-              </button>
-            </div>
-
-            <div className="p-4">
-              {activeTab === 'calculator' ? (
-                <div className="text-sm text-gray-600">
-                  <p>
-                    Enter a player's statistics to calculate their Player Efficiency Rating (PER).
-                    This metric provides a comprehensive assessment of a player's overall contribution.
-                  </p>
-                </div>
-              ) : (
-                <div className="text-sm text-gray-600">
-                  <p>
-                    Advanced options allow you to customize PER formula weights and compare with historical data.
-                    This section is coming soon in a future update.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-8">
-            <CalculatorForm />
-            
-            <ResultsDisplay />
-            
-            <ComparisonTool />
-          </div>
-
-          <div className="mt-8 bg-blue-50 rounded-lg p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-blue-800 mb-4">About Player Efficiency Rating (PER)</h2>
-            <div className="text-blue-700 space-y-4">
-              <p>
-                Player Efficiency Rating (PER) is a per-minute rating developed by NBA analyst John Hollinger. 
-                It is designed to sum up all a player's positive accomplishments, subtract the negative 
-                accomplishments, and return a per-minute rating of a player's performance.
-              </p>
-              <p>
-                PER takes into account positive accomplishments, such as field goals, free throws, 3-pointers, 
-                assists, rebounds, blocks and steals, and negative ones, such as missed shots, turnovers and 
-                personal fouls.
-              </p>
-              <p>
-                The formula adds a value to a player's rating for minutes played as well as for a team's pace 
-                of play. The league average PER is set to 15.00 every season.
-              </p>
-              <p className="font-medium">
-                PER Ratings Scale:
-              </p>
-              <ul className="list-disc list-inside ml-4">
-                <li>30+ PER: All-time great season</li>
-                <li>25-30 PER: MVP candidate</li>
-                <li>20-25 PER: All-Star caliber</li>
-                <li>15-20 PER: Solid starter</li>
-                <li>13-15 PER: Rotation player</li>
-                <li>&lt;13 PER: Bench player</li>
-              </ul>
-            </div>
-          </div>
-        </main>
-
-        <footer className="bg-gray-800 text-white py-6 mt-12">
-          <div className="container mx-auto px-4">
-            <div className="text-center">
-              <p className="text-gray-300 text-sm">
-                Player Efficiency Rating (PER) Calculator &copy; 2025
-              </p>
-              <p className="text-gray-400 text-xs mt-2">
-                This tool is designed for educational and analytical purposes. PER was developed by John Hollinger.
-              </p>
-            </div>
-          </div>
-        </footer>
+      {/* Navigation Tabs */}
+      <div className="bg-white shadow">
+        <div className="container mx-auto px-4">
+          <nav className="flex space-x-4">
+            <button
+              onClick={() => setActiveTab('calculator')}
+              className={`py-4 px-2 font-medium border-b-2 ${
+                activeTab === 'calculator' 
+                  ? 'border-blue-500 text-blue-600' 
+                  : 'border-transparent text-gray-500 hover:text-blue-500'
+              }`}
+            >
+              Calculator
+            </button>
+            <button
+              onClick={() => setActiveTab('compare')}
+              className={`py-4 px-2 font-medium border-b-2 ${
+                activeTab === 'compare' 
+                  ? 'border-blue-500 text-blue-600' 
+                  : 'border-transparent text-gray-500 hover:text-blue-500'
+              }`}
+            >
+              Compare Players
+            </button>
+            <button
+              onClick={() => setActiveTab('about')}
+              className={`py-4 px-2 font-medium border-b-2 ${
+                activeTab === 'about' 
+                  ? 'border-blue-500 text-blue-600' 
+                  : 'border-transparent text-gray-500 hover:text-blue-500'
+              }`}
+            >
+              About PER
+            </button>
+          </nav>
+        </div>
       </div>
-    </CalculatorProvider>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        {activeTab === 'calculator' && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold mb-4">PER Calculator</h2>
+            <p className="text-gray-600 mb-6">
+              Enter a player's statistics below to calculate their Player Efficiency Rating (PER).
+            </p>
+            
+            {/* Calculator Form Placeholder */}
+            <div className="p-6 border border-gray-200 rounded-lg bg-gray-50">
+              <p className="text-center text-gray-500">Calculator form will be implemented here</p>
+            </div>
+            
+            {/* Results Display Placeholder */}
+            <div className="mt-8 p-6 border border-gray-200 rounded-lg bg-gray-50">
+              <p className="text-center text-gray-500">Results will be displayed here</p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'compare' && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold mb-4">Compare Players</h2>
+            <p className="text-gray-600 mb-6">
+              Compare PER ratings between multiple players to analyze relative performance.
+            </p>
+            
+            {/* Comparison Tool Placeholder */}
+            <div className="p-6 border border-gray-200 rounded-lg bg-gray-50">
+              <p className="text-center text-gray-500">Player comparison tool will be implemented here</p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'about' && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold mb-4">About Player Efficiency Rating</h2>
+            
+            <div className="prose max-w-none">
+              <p>
+                Player Efficiency Rating (PER) is a rating of a player's per-minute productivity developed by ESPN NBA analyst John Hollinger.
+              </p>
+              
+              <h3 className="font-bold text-xl mt-6 mb-3">The Formula</h3>
+              <p>
+                PER takes into account positive accomplishments (field goals, free throws, 3-pointers, assists, rebounds, blocks, and steals) 
+                and negative ones (missed shots, turnovers, and personal fouls).
+              </p>
+              
+              <div className="bg-gray-100 p-4 rounded my-4 overflow-x-auto">
+                <code className="text-sm">
+                  uPER = (1/MP) * [3P + 2*2P + (2/3)*FT - 0.8*FTA - 0.4*(FGA-FGM) - 0.4*(3PA-3PM) - TO + 0.7*ORB + 0.3*DRB + STL + 0.7*AST + 0.7*BLK - 0.4*PF]
+                </code>
+              </div>
+              
+              <p>
+                This is then adjusted for team pace and normalized so the league average is 15.
+              </p>
+              
+              <h3 className="font-bold text-xl mt-6 mb-3">Interpreting PER</h3>
+              <ul className="list-disc pl-6 mb-4">
+                <li><strong>30+ PER:</strong> All-time great season</li>
+                <li><strong>25-30 PER:</strong> MVP candidate</li>
+                <li><strong>20-25 PER:</strong> All-Star caliber</li>
+                <li><strong>15-20 PER:</strong> Solid starter</li>
+                <li><strong>13-15 PER:</strong> Rotation player</li>
+                <li><strong>&lt;13 PER:</strong> Bench player</li>
+              </ul>
+              
+              <p>
+                The league average PER is always set at 15.00, which makes it easy to compare players across different seasons.
+              </p>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <footer className="bg-gray-800 text-white py-8">
+        <div className="container mx-auto px-4">
+          <p className="text-center">
+            &copy; 2025 Player Efficiency Rating Calculator | Developed by DxAG | <span className="text-blue-300">v0.1.0</span>
+          </p>
+        </div>
+      </footer>
+    </div>
   );
 };
 
